@@ -35,11 +35,11 @@ else:
 uploaded_files = st.file_uploader("Import your pdf files",type=["pdf"],accept_multiple_files=True)
 lst_pdfs = []
 for uploaded_file in uploaded_files:
-    filename = uploaded_file.name.removesuffix("pdf")
+    filename = uploaded_file.name.removesuffix(".pdf")
     bytes_data = uploaded_file.getvalue()
     base64_pdf = base64.b64encode(bytes_data).decode('utf-8')
     lst_pdfs.append((filename,base64_pdf))
-
+lst_pdfs = sorted(lst_pdfs)
 #Group (fold) upload part
 group_file = st.file_uploader("(Optional) Import your group file",type=["csv"],accept_multiple_files=False)
 if group_file:
