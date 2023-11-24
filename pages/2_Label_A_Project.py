@@ -50,7 +50,7 @@ if load_project_button or st.session_state.project_loaded:
         #Render PDF part
         papers = project_papers_info[project_papers_info["folds"] == fold]
         base_path = f'./data/{project_name.replace(" ","")}/pdfs/'
-        index = st.number_input("Document id",min_value=0,max_value=len(papers)-1,value=st.session_state.get(f"{project_name}{username}{fold}",0),step=1)
+        index = st.number_input("Document id",min_value=0,max_value=len(papers)-1,value=st.session_state.get(f"{project_name}{username}{fold}",0),step=1,disabled=True)
 
         doc_id = papers.iloc[index]["index"]
         pdf_path = f"{base_path}file_{str(doc_id)}"  
@@ -95,15 +95,23 @@ if load_project_button or st.session_state.project_loaded:
             else:
                 text_save = "Save"
             
-            col4, col5 = st.columns(2)
+            col4,col5,col6 = st.columns(3)
             with col4:
-                save_button = st.button(text_save)
+                if index == 0:
+                    disabled_previous = True
+                else:
+                    disabled_previous = False
+                previous_button = st.button("Previous",disabled= disabled_previous)
+            
             with col5:
+                save_button = st.button(text_save)
+            
+            with col6:
                 if index == len(papers)-1:
                     disabled_next = True
                 else:
                     disabled_next = False
-                next_button = st.button("next",disabled= disabled_next)
+                next_button = st.button("Next",disabled= disabled_next)
                 
             if save_button:
                 #Remove old annotation:
@@ -123,8 +131,14 @@ if load_project_button or st.session_state.project_loaded:
 
             if next_button:
                 st.session_state[f"{project_name}{username}{fold}"] = index + 1
-                st.write(st.session_state[f"{project_name}{username}{fold}"])
+                index = index + 1
                 st.rerun()
+            
+            if previous_button:
+                st.session_state[f"{project_name}{username}{fold}"] = index - 1
+                index = index + 1
+                st.rerun()
+        
         else:
             columns = ["label1","selected"]
             lst_row = []
@@ -153,15 +167,23 @@ if load_project_button or st.session_state.project_loaded:
             else:
                 text_save = "Save"
             
-            col4, col5 = st.columns(2)
+            col4,col5,col6 = st.columns(3)
             with col4:
-                save_button = st.button(text_save)
+                if index == 0:
+                    disabled_previous = True
+                else:
+                    disabled_previous = False
+                previous_button = st.button("Previous",disabled= disabled_previous)
+            
             with col5:
+                save_button = st.button(text_save)
+            
+            with col6:
                 if index == len(papers)-1:
                     disabled_next = True
                 else:
                     disabled_next = False
-                next_button = st.button("next",disabled= disabled_next)
+                next_button = st.button("Next",disabled= disabled_next)
             
             if save_button:
                 #Remove old annotation:
@@ -177,3 +199,12 @@ if load_project_button or st.session_state.project_loaded:
                 old_annotations[~old_annotations["doc_id"].isin([doc_id])].to_csv(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv',mode="a",index=False,header=False)
                 st.success("Annotation saved")
             
+            if next_button:
+                st.session_state[f"{project_name}{username}{fold}"] = index + 1
+                index = index + 1
+                st.rerun()
+            
+            if previous_button:
+                st.session_state[f"{project_name}{username}{fold}"] = index - 1
+                index = index + 1
+                st.rerun()
