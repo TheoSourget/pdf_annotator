@@ -63,7 +63,6 @@ if load_project_button or st.session_state.project_loaded:
             labels1 = old_annotations[old_annotations["doc_id"] == doc_id]["label1"].unique()
         else:
             labels1= projects_info[projects_info["name"] == project_name]["labels1"].values[0].split(",")
-        
         labels2 = projects_info[projects_info["name"] == project_name]["labels2"].values[0]
         if not pd.isna(labels2):
             labels2 = labels2.split(",")
@@ -82,6 +81,7 @@ if load_project_button or st.session_state.project_loaded:
                         row.append(False)
                 lst_row.append(row)
             annotations = pd.DataFrame(lst_row,columns=columns)
+            annotations = annotations.sort_values(by=["label1"])
             column_config={
                 "label1": st.column_config.TextColumn("label1", default="")
             }
@@ -118,6 +118,8 @@ if load_project_button or st.session_state.project_loaded:
                     lst_row.append(row)
             
             annotations = pd.DataFrame(lst_row,columns=columns)
+            annotations = annotations.sort_values(by=["label1"])
+
             column_config={
                 "label1": st.column_config.TextColumn("Label", default=""),
                 "selected": st.column_config.CheckboxColumn("Selected",default=False),
