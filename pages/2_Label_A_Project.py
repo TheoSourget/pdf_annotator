@@ -50,7 +50,7 @@ if load_project_button or st.session_state.project_loaded:
         #Render PDF part
         papers = project_papers_info[project_papers_info["folds"] == fold]
         base_path = f'./data/{project_name.replace(" ","")}/pdfs/'
-        index = st.number_input("Document id",min_value=0,max_value=len(papers)-1,value=0,step=1)
+        index = st.number_input("Document id",min_value=0,max_value=len(papers)-1,value=st.session_state.get(f"{project_name}{username}{fold}",0),step=1)
 
         doc_id = papers.iloc[index]["index"]
         pdf_path = f"{base_path}file_{str(doc_id)}"  
@@ -60,6 +60,7 @@ if load_project_button or st.session_state.project_loaded:
         pdf_display = st.markdown(pdf_display, unsafe_allow_html=True)
 
         if (old_annotations["doc_id"].isin([doc_id])).any():
+            st.info("You've annotated this paper")
             labels1 = old_annotations[old_annotations["doc_id"] == doc_id]["label1"].unique()
         else:
             labels1= projects_info[projects_info["name"] == project_name]["labels1"].values[0].split(",")
@@ -89,7 +90,21 @@ if load_project_button or st.session_state.project_loaded:
                 column_config[c]=st.column_config.CheckboxColumn(c,default=False)
             annotations = st.data_editor(annotations,num_rows="dynamic",column_config=column_config,use_container_width=True,hide_index=True)
 
-            save_button = st.button("Save")
+            if (old_annotations["doc_id"].isin([doc_id])).any():
+                text_save = "Update"
+            else:
+                text_save = "Save"
+            
+            col4, col5 = st.columns(2)
+            with col4:
+                save_button = st.button(text_save)
+            with col5:
+                if index == len(papers)-1:
+                    disabled_next = True
+                else:
+                    disabled_next = False
+                next_button = st.button("next",disabled= disabled_next)
+                
             if save_button:
                 #Remove old annotation:
                 old_annotations = old_annotations[~old_annotations["doc_id"].isin([doc_id])]
@@ -103,7 +118,13 @@ if load_project_button or st.session_state.project_loaded:
                             annotation_user_file.write(line)
                     annotation_user_file.write("\n")
                 old_annotations[~old_annotations["doc_id"].isin([doc_id])].to_csv(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv',mode="a",index=False,header=False)
-                
+                st.success("Annotation saved!")
+
+
+            if next_button:
+                st.session_state[f"{project_name}{username}{fold}"] = index + 1
+                st.write(st.session_state[f"{project_name}{username}{fold}"])
+                st.rerun()
         else:
             columns = ["label1","selected"]
             lst_row = []
@@ -126,7 +147,21 @@ if load_project_button or st.session_state.project_loaded:
             }
             
             annotations = st.data_editor(annotations,num_rows="dynamic",column_config=column_config,use_container_width=True,hide_index=True)
-            save_button = st.button("Save")
+            
+            if (old_annotations["doc_id"].isin([doc_id])).any():
+                text_save = "Update"
+            else:
+                text_save = "Save"
+            
+            col4, col5 = st.columns(2)
+            with col4:
+                save_button = st.button(text_save)
+            with col5:
+                if index == len(papers)-1:
+                    disabled_next = True
+                else:
+                    disabled_next = False
+                next_button = st.button("next",disabled= disabled_next)
             
             if save_button:
                 #Remove old annotation:
@@ -140,4 +175,5 @@ if load_project_button or st.session_state.project_loaded:
                         annotation_user_file.write(line)
                     annotation_user_file.write("\n")
                 old_annotations[~old_annotations["doc_id"].isin([doc_id])].to_csv(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv',mode="a",index=False,header=False)
-                
+                st.success("Annotation saved")
+            
