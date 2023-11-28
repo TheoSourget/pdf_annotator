@@ -81,15 +81,18 @@ if load_project_button or st.session_state.project_loaded:
                     else:
                         row.append(False)
                 lst_row.append(row)
+            
             annotations = pd.DataFrame(lst_row,columns=columns)
             annotations = annotations.sort_values(by=["label1"])
+            annotations = annotations.set_index("label1")
+            
             column_config={
                 "label1": st.column_config.TextColumn("label1", default="")
             }
             for c in labels2:
                 column_config[c]=st.column_config.CheckboxColumn(c,default=False)
 
-            annotations = st.data_editor(annotations,num_rows="dynamic",column_config=column_config,use_container_width=True,hide_index=True)
+            annotations = st.data_editor(annotations,num_rows="dynamic",column_config=column_config,use_container_width=True,hide_index=False)
 
             if (old_annotations["doc_id"].isin([doc_id])).any():
                 text_save = "Update"
@@ -123,7 +126,7 @@ if load_project_button or st.session_state.project_loaded:
                     for row in annotations.iterrows():
                         row_values = row[1]
                         for label2 in labels2:
-                            line = f'\n{doc_id},{doc_title},{row_values["label1"]},{label2},{row_values[label2]}'
+                            line = f'\n{doc_id},{doc_title},{row[0]},{label2},{row_values[label2]}'
                             annotation_user_file.write(line)
                     annotation_user_file.write("\n")
                 old_annotations[~old_annotations["doc_id"].isin([doc_id])].to_csv(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv',mode="a",index=False,header=False)
@@ -156,13 +159,13 @@ if load_project_button or st.session_state.project_loaded:
             
             annotations = pd.DataFrame(lst_row,columns=columns)
             annotations = annotations.sort_values(by=["label1"])
+            annotations = annotations.set_index("label1")
 
             column_config={
                 "label1": st.column_config.TextColumn("Label", default=""),
                 "selected": st.column_config.CheckboxColumn("Selected",default=False),
             }
             annotations = st.data_editor(annotations,num_rows="dynamic",column_config=column_config,use_container_width=True,hide_index=True)
-            
             if (old_annotations["doc_id"].isin([doc_id])).any():
                 text_save = "Update"
             else:
@@ -194,7 +197,7 @@ if load_project_button or st.session_state.project_loaded:
                     doc_title = papers.iloc[index]["filename"]
                     for row in annotations.iterrows():
                         row_values = row[1]
-                        line = f'\n{doc_id},{doc_title},{row_values["label1"]},{row_values["selected"]}'
+                        line = f'\n{doc_id},{doc_title},{row[0]},{row_values["selected"]}'
                         annotation_user_file.write(line)
                     annotation_user_file.write("\n")
                 old_annotations[~old_annotations["doc_id"].isin([doc_id])].to_csv(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv',mode="a",index=False,header=False)
