@@ -88,6 +88,7 @@ if load_project_button or st.session_state.project_loaded:
             }
             for c in labels2:
                 column_config[c]=st.column_config.CheckboxColumn(c,default=False)
+
             annotations = st.data_editor(annotations,num_rows="dynamic",column_config=column_config,use_container_width=True,hide_index=True)
 
             if (old_annotations["doc_id"].isin([doc_id])).any():
@@ -127,6 +128,7 @@ if load_project_button or st.session_state.project_loaded:
                     annotation_user_file.write("\n")
                 old_annotations[~old_annotations["doc_id"].isin([doc_id])].to_csv(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv',mode="a",index=False,header=False)
                 st.success("Annotation saved!")
+                st.rerun()
 
 
             if next_button:
@@ -159,7 +161,6 @@ if load_project_button or st.session_state.project_loaded:
                 "label1": st.column_config.TextColumn("Label", default=""),
                 "selected": st.column_config.CheckboxColumn("Selected",default=False),
             }
-            
             annotations = st.data_editor(annotations,num_rows="dynamic",column_config=column_config,use_container_width=True,hide_index=True)
             
             if (old_annotations["doc_id"].isin([doc_id])).any():
@@ -198,6 +199,7 @@ if load_project_button or st.session_state.project_loaded:
                     annotation_user_file.write("\n")
                 old_annotations[~old_annotations["doc_id"].isin([doc_id])].to_csv(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv',mode="a",index=False,header=False)
                 st.success("Annotation saved")
+                st.rerun()
             
             if next_button:
                 st.session_state[f"{project_name}{username}{fold}"] = index + 1
