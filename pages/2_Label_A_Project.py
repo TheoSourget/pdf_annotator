@@ -38,7 +38,21 @@ if load_project_button or st.session_state.project_loaded:
         folds = project_papers_info["folds"].unique()
         folds.sort()
         fold = st.selectbox("Fold",folds)
-        
+        with st.expander("More information"):
+            add_info = projects_info[projects_info["name"] == project_name]["Additional information"].values[0]
+            add_info = add_info.replace('""','"')
+            add_info = add_info.replace(r'\n',"\n")
+            st.write(add_info)
+
+            if os.path.exists(f'./data/{project_name.replace(" ","")}/guide.pdf'):
+                with open(f'./data/{project_name.replace(" ","")}/guide.pdf','rb') as guide_file:
+                    st.download_button(label='Download Annotation Guide', 
+                                       data=guide_file,
+                                       file_name=f'Guide_{project_name.replace(" ","")}.pdf',
+                                       mime='application/octet-stream')
+            else:
+                st.write("No annotation guide available")
+
         #Try to load previous annotations
         if not os.path.exists(f'./data/{project_name.replace(" ","")}/annotations/{username}.csv'):
             st.info("New user for this project")

@@ -46,11 +46,13 @@ if group_file:
     folds = pd.read_csv(group_file)
 else:
     folds = None
+ 
+guide = st.file_uploader("Import your annotation guide",type=["pdf"],accept_multiple_files=False)
+
 #Label part 
 labels1 = st_tags(label='Input your first labels',text='Type a label and press enter')
 labels2 = st_tags(label='(Optional) Input your second labels',text='Type a label and press enter')
-
-
+additional_info = st.text_area(label='Additional information',value="")
 save = st.button("save")
 if save:
     if not lst_pdfs:
@@ -60,8 +62,14 @@ if save:
     elif not labels1:
         st.info("No labels input")
     else:
+        if not additional_info:
+            additional_info = "No additional_info"
+        else:
+            additional_info = additional_info.replace('"','""')
+            additional_info = additional_info.replace('\n','\\n')
+
         with open("./data/projects_info.csv","a") as name_file:
-            name_file.write(f'\n{project_name},"{",".join(labels1)}","{",".join(labels2)}"')
+            name_file.write(f'\n{project_name},"{",".join(labels1)}","{",".join(labels2)}","{additional_info}"')
         os.mkdir(f"./data/{project_name_without_space}")
         os.mkdir(f"./data/{project_name_without_space}/pdfs")
         os.mkdir(f"./data/{project_name_without_space}/annotations")
@@ -78,4 +86,7 @@ if save:
                 else:
                     fold_id = 0
                 paper_info_file.write(f"\n{i},{pdf[0]},{fold_id}")
+        if guide:
+            with open(f"./data/{project_name_without_space}/guide.pdf","wb") as guide_file:
+                guide_file.write(guide.getvalue())
         st.success("Project created! You can start the labeling in 'Label a project' section")
