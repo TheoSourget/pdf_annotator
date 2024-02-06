@@ -39,7 +39,7 @@ if load_project_button or st.session_state.project_loaded:
         folds.sort()
         fold = st.selectbox("Fold",folds)
         with st.expander("More information"):
-            add_info = projects_info[projects_info["name"] == project_name]["Additional information"].values[0]
+            add_info = projects_info[projects_info["name"] == project_name]["add_info"].values[0]
             add_info = add_info.replace('""','"')
             add_info = add_info.replace(r'\n',"\n")
             st.write(add_info)
